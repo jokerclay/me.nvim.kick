@@ -1,40 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, and understand
-  what your configuration is doing.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-  And then you can explore or search through `:help lua-guide`
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
---]]
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -71,7 +34,15 @@ require('lazy').setup({
   'tpope/vim-rhubarb',
 
   -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
+    'tpope/vim-sleuth',
+
+  -- vs-code like icons
+  'kyazdani42/nvim-web-devicons',
+
+  -- tmux & split window navigation
+	-- Ctrl-hjkl 移动窗口
+  'christoomey/vim-tmux-navigator',
+
 
 
   -- NOTE: This is where your plugins related to LSP can be installed.
@@ -212,6 +183,12 @@ vim.wo.relativenumber = true;
 vim.o.cursorline = true;
 
 
+-- tabs & indentation
+vim.o.tabstop = 4;
+vim.o.shiftwidth = 4;
+vim.o.expandtab = true;
+vim.o.autoindent = true;
+
 -- 
 vim.o.ruler = true;
 vim.o.colorcolumn = "80";
@@ -271,12 +248,19 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
+-- import telescope actions safely
+local actions_setup, actions = pcall(require, "telescope.actions")
+if not actions_setup then
+	return
+end
 require('telescope').setup {
   defaults = {
     mappings = {
       i = {
         ['<C-u>'] = false,
         ['<C-d>'] = false,
+				["<C-k>"] = actions.move_selection_previous, -- move to prev result
+				["<C-j>"] = actions.move_selection_next, -- move to next result
       },
     },
   },
@@ -309,7 +293,7 @@ require('nvim-treesitter.configs').setup {
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'help', 'vim' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-  auto_install = false,
+  auto_install = true,
 
   highlight = { enable = true },
   indent = { enable = true, disable = { 'python' } },
@@ -554,7 +538,6 @@ nvimtree.setup({
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 -- nvim-tree
-
 vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { noremap = true, silent = true })  -- toggle file explorer
                                                                                          -- <space>e 打开 文件管理器
 -- The line beneath this is called `modeline`. See `:help modeline`
